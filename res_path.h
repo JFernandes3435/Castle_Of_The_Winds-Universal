@@ -13,9 +13,13 @@ std::string getResourcePath(const std::string &subDir = "") {
 	#else
 	const char PATH_SEP = '/';
 	#endif
-
+	
+	//Hold the base of the resource path, i.e. 'Projects/res'
+	//Static so that in multiple callings of the function the baseRes
+	//is only calculated once.
 	static std::string baseRes;
 	if(baseRes.empty()) {
+		//SDL_GetBasePath will return NULL is it fails.
 		char* basePath = SDL_GetBasePath();
 		if (basePath) {
 			baseRes = basePath;
@@ -24,10 +28,13 @@ std::string getResourcePath(const std::string &subDir = "") {
 			std::cerr << "Error getting resource path: " << SDL_GetError() << std::endl;
 			return "";
 		}
-
+		
+		//Replace the ending 'bin/' in SDL's base path to get the resource path.
 		size_t pos = baseRes.rfind("bin");
 		baseRes = baseRes.substr(0, pos) + "res" + PATH_SEP;
 	}
 
-	return subDir.empty() ? baseRes : baseRes subDir PATH_SEP;
+	//If we specified a subdirectory to acquire return it appended to the end
+	//of the resource path else simply return the base resource path.
+	return subDir.empty() ? baseRes : baseRes + subDir + PATH_SEP;
 }
